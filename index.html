@@ -1,23 +1,279 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hello World</title>
-
-  <!-- CSS File -->
-  <link rel="stylesheet" href="style.css" />
+  <title>Debt Recycling Calculator – Australian Strategy Guide</title>
+  <link rel="stylesheet" href="display.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
 </head>
 <body>
 
-  <div class="container">
-    <h1>Hello World</h1>
+  <!-- ═══════════════════════════════════════════════════
+       HERO BANNER
+  ════════════════════════════════════════════════════ -->
+  <header class="hero">
+    <span class="hero__badge">AUSTRALIAN STRATEGY GUIDE</span>
+    <h1 class="hero__title">Debt Recycling Calculator</h1>
+    <p class="hero__sub">Calculate the tax benefits and long-term impact of your debt recycling strategy.</p>
+    <div class="hero__stats">
+      <div class="hero__stat">
+        <span class="hero__stat-value">$47k+</span>
+        <span class="hero__stat-label">AVG TAX SAVINGS</span>
+      </div>
+      <div class="hero__stat">
+        <span class="hero__stat-value">10 yrs</span>
+        <span class="hero__stat-label">TYPICAL HORIZON</span>
+      </div>
+      <div class="hero__stat">
+        <span class="hero__stat-value">2–3×</span>
+        <span class="hero__stat-label">WEALTH MULTIPLIER</span>
+      </div>
+    </div>
+  </header>
 
-    <button onclick="sayHello()">Click Me</button>
-  </div>
+  <!-- ═══════════════════════════════════════════════════
+       MAIN LAYOUT – sidebar + calculator
+  ════════════════════════════════════════════════════ -->
+  <main class="layout">
 
-  <!-- JS File -->
+    <!-- LEFT SIDEBAR: How It Works -->
+    <aside class="sidebar">
+      <p class="sidebar__eyebrow">HOW IT WORKS</p>
+      <h2 class="sidebar__heading">The debt recycling process</h2>
+      <ol class="steps">
+        <li class="steps__item">
+          <span class="steps__num">1</span>
+          <div>
+            <strong>Establish an investment loan</strong>
+            <p>Create a loan split against your home equity</p>
+          </div>
+        </li>
+        <li class="steps__item">
+          <span class="steps__num">2</span>
+          <div>
+            <strong>Invest the funds</strong>
+            <p>Shares, managed funds, or investment property</p>
+          </div>
+        </li>
+        <li class="steps__item">
+          <span class="steps__num">3</span>
+          <div>
+            <strong>Claim tax-deductible interest</strong>
+            <p>Interest on the investment loan may be deductible</p>
+          </div>
+        </li>
+        <li class="steps__item">
+          <span class="steps__num">4</span>
+          <div>
+            <strong>Pay down home loan faster</strong>
+            <p>Use dividends + tax savings to reduce bad debt</p>
+          </div>
+        </li>
+        <li class="steps__item">
+          <span class="steps__num">5</span>
+          <div>
+            <strong>Repeat the cycle</strong>
+            <p>Growing equity unlocks more investment capacity</p>
+          </div>
+        </li>
+      </ol>
+
+      <!-- Cycle diagram -->
+      <div class="cycle">
+        <div class="cycle__node cycle__node--top">Extra home<br>repayments</div>
+        <div class="cycle__node cycle__node--right">Reborrow as<br>investment loan</div>
+        <div class="cycle__node cycle__node--bottom-right">Invest in<br>income assets</div>
+        <div class="cycle__node cycle__node--bottom-left">Dividends pay<br>home loan</div>
+        <div class="cycle__center">
+          <span class="cycle__word">cycle</span>
+          <span class="cycle__subword">repeats</span>
+        </div>
+        <!-- SVG arrows -->
+        <svg class="cycle__arrows" viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#4a90d9"/>
+            </marker>
+          </defs>
+          <!-- top → right -->
+          <path d="M 155,38 Q 200,80 185,130" stroke="#4a90d9" stroke-width="2" fill="none" marker-end="url(#arr)"/>
+          <!-- right → bottom-right -->
+          <path d="M 185,148 Q 185,185 155,195" stroke="#4a90d9" stroke-width="2" fill="none" marker-end="url(#arr)"/>
+          <!-- bottom-right → bottom-left -->
+          <path d="M 120,205 Q 90,215 65,195" stroke="#4a90d9" stroke-width="2" fill="none" marker-end="url(#arr)"/>
+          <!-- bottom-left → top -->
+          <path d="M 38,148 Q 20,100 65,42" stroke="#4a90d9" stroke-width="2" fill="none" marker-end="url(#arr)"/>
+        </svg>
+      </div>
+
+      <!-- Use Home Equity tag -->
+      <div class="equity-tag">Use Home Equity</div>
+    </aside>
+
+    <!-- RIGHT PANEL: Calculator -->
+    <section class="calculator">
+      <div class="calc-card">
+
+        <!-- Results chart (shown after calculate) -->
+        <div class="results-section" id="resultsSection" style="display:none;">
+          <canvas id="wealthChart"></canvas>
+          <div class="result-stats" id="resultStats"></div>
+        </div>
+
+        <!-- Form -->
+        <h3 class="calc-card__title">Your details</h3>
+
+        <div class="field-group">
+          <p class="field-group__label">
+            <span class="field-group__icon">💼</span>
+            INCOME &amp; INVESTMENTS
+          </p>
+          <div class="field-row">
+            <div class="field">
+              <label>Salary</label>
+              <div class="input-wrap input-wrap--dollar">
+                <input type="number" id="salary" value="120000" />
+              </div>
+            </div>
+            <div class="field">
+              <label>Initial investment amount</label>
+              <div class="input-wrap input-wrap--dollar">
+                <input type="number" id="initialInvestment" value="50000" />
+              </div>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>Annual investment amount</label>
+              <div class="input-wrap input-wrap--dollar">
+                <input type="number" id="annualInvestment" value="24000" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <hr class="divider" />
+
+        <div class="field-group">
+          <p class="field-group__label">
+            <span class="field-group__icon">🏠</span>
+            MORTGAGE &amp; RETURNS
+          </p>
+          <div class="field-row">
+            <div class="field">
+              <label>Mortgage amount</label>
+              <div class="input-wrap input-wrap--dollar">
+                <input type="number" id="mortgage" value="600000" />
+              </div>
+            </div>
+            <div class="field">
+              <label>Mortgage interest rate</label>
+              <div class="input-wrap input-wrap--pct">
+                <input type="number" id="mortgageRate" value="6.2" step="0.1" />
+              </div>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>Dividend return rate</label>
+              <div class="input-wrap input-wrap--pct">
+                <input type="number" id="dividendRate" value="4.0" step="0.1" />
+              </div>
+            </div>
+            <div class="field">
+              <label>Capital growth rate</label>
+              <div class="input-wrap input-wrap--pct">
+                <input type="number" id="growthRate" value="7.0" step="0.1" />
+              </div>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>Projection years</label>
+              <div class="input-wrap">
+                <select id="projectionYears">
+                  <option value="10">10 years</option>
+                  <option value="15">15 years</option>
+                  <option value="20" selected>20 years</option>
+                  <option value="25">25 years</option>
+                  <option value="30">30 years</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Advanced options -->
+        <div class="advanced-toggle" id="advancedToggle">
+          <span class="advanced-toggle__icon">⚙️</span>
+          <span>Advanced options</span>
+          <span class="advanced-toggle__badge">optional</span>
+          <span class="advanced-toggle__chevron" id="advancedChevron">&#8964;</span>
+        </div>
+        <div class="advanced-panel" id="advancedPanel">
+          <div class="field-row">
+            <div class="field">
+              <label>Tax bracket (%)</label>
+              <div class="input-wrap input-wrap--pct">
+                <input type="number" id="taxRate" value="37" step="1" />
+              </div>
+            </div>
+            <div class="field">
+              <label>Franking credit rate (%)</label>
+              <div class="input-wrap input-wrap--pct">
+                <input type="number" id="frankingRate" value="70" step="5" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-calculate" id="calculateBtn">Calculate debt recycling</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- ═══════════════════════════════════════════════════
+       EXPLAINER TEXT
+  ════════════════════════════════════════════════════ -->
+  <section class="explainer">
+    <p class="explainer__text">
+      Debt recycling is a strategy that helps Australian homeowners turn their non-deductible mortgage
+      debt into tax-deductible investment debt. By making extra home loan repayments and reborrowing
+      that equity to invest in income-producing assets like shares or managed funds, the interest on
+      your investment loan may become tax-deductible. Dividends and tax savings are then used to pay
+      down your mortgage faster, building wealth and reducing your tax at the same time.
+    </p>
+    <p class="explainer__cta">Talk to an expert now and see how you can cut years off your mortgage</p>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════
+       CTA BUTTON
+  ════════════════════════════════════════════════════ -->
+  <section class="cta-section">
+    <button class="btn-contact">Contact one of our recommended advisors</button>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════
+       PLACEHOLDER: Comparing other calculators/tools
+  ════════════════════════════════════════════════════ -->
+  <section class="placeholder-section">
+    <p class="placeholder-section__text">[space for comparing other calculators/tools]</p>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════
+       DISCLAIMER
+  ════════════════════════════════════════════════════ -->
+  <footer class="disclaimer">
+    <p>
+      Disclaimer: The information on this page is general in nature and does not constitute financial,
+      tax, or legal advice. It does not take into account your personal circumstances. Before implementing
+      a debt recycling strategy, consult a qualified financial adviser and tax professional.
+    </p>
+    <p>This calculator is for illustrative purposes only.</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
